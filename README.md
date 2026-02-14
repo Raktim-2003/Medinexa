@@ -92,7 +92,7 @@ The application reflects modern full-stack engineering principles applied to rea
 ---
 
  # 📂 Project Structure :
- 
+<pre>
 Medinexa/
 │
 ├── g3/
@@ -111,7 +111,7 @@ Medinexa/
 │       └── server.js
 │
 └── README.md
-
+</pre>
 ---
 
  # 🚀 Installation & Setup : 

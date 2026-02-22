@@ -18,7 +18,7 @@ const Navbar = () => {
       <NavLink to="/">
         <p className="text-3xl font-bold text-primary flex items-center cursor-pointer">
           <img src="https://res.cloudinary.com/dksiyjiby/image/upload/v1747995821/x36xthyttbyzlrkg9zqs.png" alt="" className="w-[120px] h-[100px]"/>
-         <span> Health Bridge</span>
+         <span> Medinexa</span>
         </p>
       </NavLink>
       <ul className="hidden md:flex items-start gap-5 font-medium">

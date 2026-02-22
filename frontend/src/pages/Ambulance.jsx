@@ -4,7 +4,7 @@ export default function AmbulanceServices() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold text-center mb-6 text-blue-700">
-        Ambulance Services – Health Bridge Hospital
+        Ambulance Services – Medinexa Hospital
       </h1>
       <p className="text-lg text-center mb-10">
         Rapid, Reliable, and Ready – 24/7 Emergency Ambulance Support

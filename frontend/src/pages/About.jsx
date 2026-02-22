@@ -17,21 +17,21 @@ const About = () => {
         />
         <div className="flex flex-col justify-center gap-6 md:w-2/4 text-sm text-gray-600">
           <p>
-            Welcome to HealthBridge, your trusted partner in managing your healthcare
-            needs conveniently and efficiently. At HealthBridge, we understand the
+            Welcome to Medinexa, your trusted partner in managing your healthcare
+            needs conveniently and efficiently. At medinexa, we understand the
             challenges individuals face when it comes to scheduling doctor
             appointments and managing their health records.
           </p>
           <p>
-            HealthBridge is committed to excellence in healthcare technology. We
+            Medinexa is committed to excellence in healthcare technology. We
             continuously strive to enhance our platform, integrating the latest
             advancements to improve user experience and deliver superior
             service. Whether you are booking your first appointment or managing
-            ongoing care, HealthBridge is here to support you every step of the way.
+            ongoing care, Medinexa is here to support you every step of the way.
           </p>
           <b className="text-gray-800">Our Vision</b>
           <p>
-            Our vision at HealthBridge is to create a seamless healthcare experience
+            Our vision at Medinexa is to create a seamless healthcare experience
             for every user. We aim to bridge the gap between patients and
             healthcare providers, making it easier for you to access the care
             you need, when you need it.

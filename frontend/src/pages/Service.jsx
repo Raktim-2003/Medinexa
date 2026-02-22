@@ -4,7 +4,7 @@ export default function Service() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold text-center mb-6 text-blue-700">
-        Health Bridge 
+        Medinexa 
       </h1>
       <p className="text-lg text-center mb-10">
         Streamlining Healthcare Operations with Precision & Care

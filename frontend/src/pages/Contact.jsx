@@ -22,10 +22,10 @@ const Contact = () => {
            kolkata <br /> 
           </p>
           <p className="text-gray-500">
-            Tel: +913462266638 <br /> Email: healthbridge2025@gmail.com
+            Tel: +9134622038 <br /> Email: medinexa2026@gmail.com
           </p>
           <p className="font-semibold text-lg text-gray-600">
-            Careers at Health Bridge
+            Careers at Medinexa
           </p>
           <p className="text-gray-500">
             Learn more about our teams and job openings.

@@ -7,13 +7,17 @@ const Footer = () => {
         {/*---------- Left Side ----------*/}
         <div>
           <p className="mb-5 w-40 text-3xl font-bold text-primary cursor-pointer">
-            Health Bridge
+            Medinexa
           </p>
           <p className="w-full md:w-2/3 text-gray-600 leading-6">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry&apos;s standard dummy
-            text ever since the 1500s, when an unknown printer took a galley of
-            type and scrambled it to make a type specimen book.
+            <p>
+              Medinexa is an advanced healthcare platform designed to connect
+              patients with trusted doctors and medical services seamlessly. Our
+              mission is to simplify healthcare access through smart technology,
+              secure data management, and user-friendly digital solutions. We
+              aim to make healthcare more accessible, efficient, and reliable
+              for everyone.
+            </p>
           </p>
         </div>
         {/*---------- Center ----------*/}
@@ -48,10 +52,10 @@ const Footer = () => {
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
           <ul className="flex flex-col gap-2 text-gray-600">
             <li className="cursor-pointer hover:text-black transition-all duration-500">
-              +913462266638
+              +9134622038
             </li>
             <li className="cursor-pointer hover:text-black transition-all duration-500">
-              healthbridge2025@gmail.com
+              medinexa2026@gmail.com
             </li>
           </ul>
         </div>
@@ -60,7 +64,7 @@ const Footer = () => {
       <div>
         <hr className="text-gray-400" />
         <p className="py-5 text-sm text-center text-gray-600">
-          Copyright © 2025 Health Bridge - All Right Reserved.
+          Copyright © 2025 Medinexa - All Right Reserved.
         </p>
       </div>
     </div>

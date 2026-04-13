@@ -3,90 +3,219 @@ import { AdminContext } from "../../context/AdminContext";
 import { assets } from "../../assets/assets_admin/assets";
 import { AppContext } from "../../context/AppContext";
 
-const Dashboard = () => {
-  const { aToken, dashData, cancelAppointment, getDashData } =
-    useContext(AdminContext);
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+} from "chart.js";
 
-  const { slotDateFormat } = useContext(AppContext);
+import { Bar, Line } from "react-chartjs-2";
+
+ChartJS.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+);
+
+const Dashboard = () => {
+  const { aToken, dashData, getDashData } = useContext(AdminContext);
+  const { currency, slotDateFormat } = useContext(AppContext);
 
   useEffect(() => {
-    if (aToken) {
-      getDashData();
-    }
+    if (aToken) getDashData();
   }, [aToken]);
+
+  // ✅ FIXED WEEKLY DATA
+  const getWeeklyData = () => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const data = [0, 0, 0, 0, 0, 0, 0];
+
+    dashData.latestAppointments.forEach((item) => {
+      if (!item.slotDate) return;
+
+      const parts = item.slotDate.split("_");
+      if (parts.length !== 3) return;
+
+      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const date = new Date(formatted);
+
+      if (!isNaN(date)) {
+        const day = date.getDay();
+        data[day]++;
+      }
+    });
+
+    return {
+      labels: days,
+      datasets: [
+        {
+          label: "Appointments",
+          data,
+          borderRadius: 8,
+        },
+      ],
+    };
+  };
+
+  // ✅ REVENUE DATA
+  const getRevenueData = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    const data = [0, 0, 0, 0, 0, 0];
+
+    dashData.latestAppointments.forEach((item) => {
+      if (!item.slotDate || !item.isCompleted) return;
+
+      const parts = item.slotDate.split("_");
+      if (parts.length !== 3) return;
+
+      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const date = new Date(formatted);
+
+      if (!isNaN(date)) {
+        const month = date.getMonth();
+        if (month < 6) {
+          data[month] += item.docData?.fees || 0;
+        }
+      }
+    });
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: "Revenue",
+          data,
+          tension: 0.4,
+        },
+      ],
+    };
+  };
+
+  // ✅ MONTHLY APPOINTMENTS
+  const getMonthlyAppointments = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    const data = [0, 0, 0, 0, 0, 0];
+
+    dashData.latestAppointments.forEach((item) => {
+      if (!item.slotDate) return;
+
+      const parts = item.slotDate.split("_");
+      if (parts.length !== 3) return;
+
+      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const date = new Date(formatted);
+
+      if (!isNaN(date)) {
+        const month = date.getMonth();
+        if (month < 6) data[month]++;
+      }
+    });
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: "Appointments Trend",
+          data,
+          tension: 0.4,
+        },
+      ],
+    };
+  };
+
   return (
     dashData && (
-      <div className="m-5">
-        <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all">
-            <img className="w-14" src={assets.doctor_icon} alt="" />
-            <div>
-              <p className="text-xl font-semibold text-gray-600">
-                {dashData.doctors}
-              </p>
-              <p className="text-gray-400">Doctors</p>
-            </div>
+      <div className="w-full min-h-screen px-8 py-6 bg-gradient-to-br from-indigo-50 via-white to-blue-50">
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Dashboard Overview 🚀
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Welcome back! Here's what's happening today.
+          </p>
+        </div>
+
+        {/* STATS */}
+        <div className="grid sm:grid-cols-3 gap-5 mb-8">
+          <Card title="Doctors" value={dashData.doctors} color="bg-blue-500" />
+          <Card
+            title="Appointments"
+            value={dashData.appointments}
+            color="bg-purple-500"
+          />
+          <Card
+            title="Patients"
+            value={dashData.patients}
+            color="bg-green-500"
+          />
+        </div>
+
+        {/* CHARTS */}
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          {/* WEEKLY */}
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <h2 className="mb-4 font-semibold">Weekly Activity 📊</h2>
+            <Bar data={getWeeklyData()} />
           </div>
 
-          <div className="flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all">
-            <img className="w-14" src={assets.appointments_icon} alt="" />
-            <div>
-              <p className="text-xl font-semibold text-gray-600">
-                {dashData.appointments}
-              </p>
-              <p className="text-gray-400">Appointments</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all">
-            <img className="w-14" src={assets.patients_icon} alt="" />
-            <div>
-              <p className="text-xl font-semibold text-gray-600">
-                {dashData.patients}
-              </p>
-              <p className="text-gray-400">Patients</p>
-            </div>
+          {/* REVENUE */}
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <h2 className="mb-4 font-semibold">
+              Revenue Analytics 💰 ({currency})
+            </h2>
+            <Line data={getRevenueData()} />
           </div>
         </div>
 
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-300">
-            <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">Latest Bookings</p>
-          </div>
+        {/* MONTHLY */}
+        <div className="bg-white p-6 rounded-2xl shadow mb-8">
+          <h2 className="mb-4 font-semibold">Monthly Appointments Trend 📈</h2>
+          <Line data={getMonthlyAppointments()} />
+        </div>
 
-          <div className="pt-4 border border-t-0 border-gray-300">
+        {/* ACTIVITY */}
+        <div className="bg-white p-6 rounded-2xl shadow">
+          <h2 className="mb-4 font-semibold">Recent Activity 🔔</h2>
+
+          <div className="space-y-4">
             {dashData.latestAppointments.map((item, index) => (
-              <div
-                className="flex items-center px-6 py-3 gap-3 hover:bg-gray-100"
-                key={index}
-              >
+              <div key={index} className="flex items-center gap-4">
                 <img
-                  className="rounded-full w-10 bg-gray-200"
+                  className="w-10 h-10 rounded-full object-cover"
                   src={item.docData.image}
                   alt=""
                 />
-                <div className="flex-1 text-sm">
-                  <p className="text-gray-800 font-medium">
-                    {item.docData.name}
-                  </p>
-                  <p className="text-gray-600">
+
+                <div className="flex-1">
+                  <p className="font-medium">{item.docData.name}</p>
+                  <p className="text-xs text-gray-500">
                     {slotDateFormat(item.slotDate)} | {item.slotTime}
                   </p>
                 </div>
+
+                {/* STATUS LETTER */}
                 {item.cancelled ? (
-                  <p className="text-red-400 text-xs font-medium">Cancelled</p>
+                  <span className="w-7 h-7 flex items-center justify-center bg-red-100 text-red-600 rounded-full text-xs font-bold">
+                    R
+                  </span>
                 ) : item.isCompleted ? (
-                  <p className="text-green-400 text-xs font-medium">
-                    Completed
-                  </p>
+                  <span className="w-7 h-7 flex items-center justify-center bg-green-100 text-green-600 rounded-full text-xs font-bold">
+                    A
+                  </span>
                 ) : (
-                  <img
-                    onClick={() => cancelAppointment(item._id)}
-                    className="w-10 cursor-pointer"
-                    src={assets.cancel_icon}
-                    alt=""
-                  />
+                  <span className="w-7 h-7 flex items-center justify-center bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold">
+                    P
+                  </span>
                 )}
               </div>
             ))}
@@ -98,3 +227,11 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+/* CARD */
+const Card = ({ title, value, color }) => (
+  <div className={`${color} text-white p-5 rounded-2xl shadow`}>
+    <p className="text-sm">{title}</p>
+    <h2 className="text-2xl font-bold">{value}</h2>
+  </div>
+);

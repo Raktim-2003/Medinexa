@@ -11,6 +11,7 @@ const DoctorAppointments = () => {
     completeAppointment,
     cancelAppointment,
   } = useContext(DoctorContext);
+
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
 
   useEffect(() => {
@@ -18,62 +19,89 @@ const DoctorAppointments = () => {
       getAppointments();
     }
   }, [dToken]);
+
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-medium">All Appointments</p>
+    <div className="w-full max-w-6xl mx-auto mt-8 px-4">
+      {/* Title */}
+      <p className="text-2xl font-semibold text-gray-800 mb-6">
+        All Appointments
+      </p>
 
-      <div className="bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll border-gray-300">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr] gap-1 py-3 px-6 border-b border-gray-300">
-          <p>#</p>
-          <p>Patient</p>
-          {/* <p>Payment</p> */}
-          <p>Age</p>
-          <p>Date & Time</p>
-          <p>Fee</p>
-          <p>Action</p>
-        </div>
-
+      {/* Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {appointments.reverse().map((item, index) => (
           <div
-            className="flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_2fr_2fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b border-gray-300 hover:bg-gray-50"
             key={index}
+            className={`rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border border-white/20 ${
+              index % 3 === 0
+                ? "bg-gradient-to-br from-blue-50 to-indigo-100"
+                : index % 3 === 1
+                  ? "bg-gradient-to-br from-purple-50 to-pink-100"
+                  : "bg-gradient-to-br from-green-50 to-teal-100"
+            }`}
           >
-            <p className="max-sm:hidden">{index + 1}</p>
-            <div className="flex items-center gap-2">
+            {/* Top */}
+            <div className="flex items-center gap-3">
               <img
-                className="w-8 rounded-full"
+                className="w-12 h-12 rounded-full object-cover border"
                 src={item.userData.image}
                 alt=""
               />
-              <p>{item.userData.name}</p>
-            </div>
-            <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
-            <p>
-              {slotDateFormat(item.slotDate)}, {item.slotTime}
-            </p>
-            <p>
-              {currency} {item.amount}
-            </p>
-            {item.cancelled ? (
-              <p className="text-red-500">Cancelled</p>
-            ) : item.isCompleted ? (
-              <p className="text-green-500">Completed</p>
-            ) : (
-              <div className="flex">
-                <img
-                  onClick={() => cancelAppointment(item._id)}
-                  className="w-10 cursor-pointer"
-                  src={assets.cancel_icon}
-                  alt=""
-                />
-                <img
-                  onClick={() => completeAppointment(item._id)}
-                  className="w-10 cursor-pointer"
-                  src={assets.tick_icon}
-                  alt=""
-                />
+              <div>
+                <p className="font-semibold text-gray-800">
+                  {item.userData.name}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Age: {calculateAge(item.userData.dob)}
+                </p>
               </div>
-            )}
+            </div>
+
+            {/* Info */}
+            <div className="mt-4 text-sm text-gray-700 space-y-1">
+              <p>
+                <span className="font-medium">Date:</span>{" "}
+                {slotDateFormat(item.slotDate)}
+              </p>
+              <p>
+                <span className="font-medium">Time:</span> {item.slotTime}
+              </p>
+              <p>
+                <span className="font-medium">Fee:</span> {currency}{" "}
+                {item.amount}
+              </p>
+            </div>
+
+            {/* Status / Actions */}
+            <div className="mt-5 flex justify-between items-center">
+              {item.cancelled ? (
+                <span className="px-3 py-1 text-xs rounded-full bg-red-100 text-red-600 font-medium">
+                  Cancelled
+                </span>
+              ) : item.isCompleted ? (
+                <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-600 font-medium">
+                  Completed
+                </span>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => cancelAppointment(item._id)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm shadow"
+                  >
+                    <img className="w-4" src={assets.cancel_icon} alt="" />
+                    Reject
+                  </button>
+
+                  <button
+                    onClick={() => completeAppointment(item._id)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm shadow"
+                  >
+                    <img className="w-4" src={assets.tick_icon} alt="" />
+                    Accept
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>

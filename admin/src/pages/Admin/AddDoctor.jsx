@@ -6,6 +6,8 @@ import axios from "axios";
 
 const AddDoctor = () => {
   const [docImg, setDocImg] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,12 +25,9 @@ const AddDoctor = () => {
     e.preventDefault();
 
     try {
-      if (!docImg) {
-        return toast.error("Image not selected");
-      }
+      if (!docImg) return toast.error("Image not selected");
 
       const formData = new FormData();
-
       formData.append("image", docImg);
       formData.append("name", name);
       formData.append("email", email);
@@ -40,203 +39,208 @@ const AddDoctor = () => {
       formData.append("degree", degree);
       formData.append(
         "address",
-        JSON.stringify({ line1: address1, line2: address2 })
+        JSON.stringify({ line1: address1, line2: address2 }),
       );
-
-      // formData.forEach((value, key) => {
-      //   console.log(`${key} : ${value}`);
-      // });
 
       const { data } = await axios.post(
         backendUrl + "/api/admin/add-doctor",
         formData,
-        { headers: { aToken } }
+        { headers: { aToken } },
       );
 
       if (data.success) {
         toast.success(data.message);
-        setDocImg(false);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAddress1("");
-        setAddress2("");
-        setDegree("");
-        setAbout("");
-        setFees("");
-      } else {
-        toast.error(data.message);
-      }
+      } else toast.error(data.message);
     } catch (error) {
       toast.error(error.message);
-      console.log(error);
     }
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="m-5 w-full">
-      <p className="mb-3 text-lg font-medium">Add Doctor</p>
-      <div className="bg-white px-8 py-8 border border-gray-300 rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll">
-        <div className="flex items-center gap-4 mb-8 text-gray-500">
+    <form
+      onSubmit={onSubmitHandler}
+      className="w-full min-h-screen px-8 py-6 bg-gradient-to-br from-gray-50 to-gray-100"
+    >
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-semibold text-gray-800">Add Doctor</h1>
+        <p className="text-gray-500 text-sm">
+          Create a professional doctor profile
+        </p>
+      </div>
+
+      {/* PROGRESS */}
+      <div className="flex gap-3 mb-6">
+        <div className="flex-1 h-2 bg-indigo-500 rounded-full"></div>
+        <div className="flex-1 h-2 bg-indigo-200 rounded-full"></div>
+        <div className="flex-1 h-2 bg-indigo-200 rounded-full"></div>
+      </div>
+
+      <div className="bg-white rounded-3xl shadow-xl p-8 max-w-6xl">
+        {/* IMAGE UPLOAD */}
+        <div className="mb-8">
           <label htmlFor="doc-img">
-            <img
-              className="w-16 bg-gray-100 rounded-full cursor-pointer"
-              src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
-              alt=""
-            />
+            <div className="border-2 border-dashed border-indigo-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-50 transition">
+              <img
+                src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
+                className="w-20 h-20 object-cover rounded-full mb-2"
+                alt=""
+              />
+
+              <p className="text-sm text-gray-500">
+                Click or drag image to upload
+              </p>
+            </div>
           </label>
+
           <input
-            onChange={(e) => setDocImg(e.target.files[0])}
             type="file"
             id="doc-img"
             hidden
+            onChange={(e) => setDocImg(e.target.files[0])}
           />
-          <p>
-            Upload doctor <br /> picture
-          </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-start gap-10 text-gray-600">
-          <div className="w-full lg:flex-1 flex flex-col gap-4">
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Doctor name</p>
-              <input
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="text"
-                placeholder="Name"
-                required
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Doctor Email</p>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="email"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Doctor Password</p>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="password"
-                placeholder="Password"
-                required
-              />
+        {/* FORM GRID */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEFT */}
+          <div className="space-y-4">
+            <Input label="Doctor Name" value={name} setValue={setName} />
+
+            <Input
+              label="Email"
+              value={email}
+              setValue={setEmail}
+              type="email"
+            />
+
+            {/* PASSWORD WITH TOGGLE */}
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full mt-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+                />
+                <span
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-4 cursor-pointer text-gray-400"
+                >
+                  👁️
+                </span>
+              </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Experience</p>
-              <select
-                onChange={(e) => setExperience(e.target.value)}
-                value={experience}
-                className="border rounded px-3 py-2 border-gray-300 outline-0"
-              >
-                <option value="1 Year">1 Year</option>
-                <option value="2 Year">2 Year</option>
-                <option value="3 Year">3 Year</option>
-                <option value="4 Year">4 Year</option>
-                <option value="5 Year">5 Year</option>
-                <option value="6 Year">6 Year</option>
-                <option value="7 Year">7 Year</option>
-                <option value="8 Year">8 Year</option>
-                <option value="9 Year">9 Year</option>
-                <option value="10 Year">10 Year</option>
-              </select>
-            </div>
+            <Select
+              label="Experience"
+              value={experience}
+              setValue={setExperience}
+              options={[
+                "1 Year",
+                "2 Year",
+                "3 Year",
+                "4 Year",
+                "5 Year",
+                "6 Year",
+                "7 Year",
+                "8 Year",
+                "9 Year",
+                "10 Year",
+              ]}
+            />
 
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Fees</p>
-              <input
-                onChange={(e) => setFees(e.target.value)}
-                value={fees}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="number"
-                placeholder="fees"
-                required
-              />
-            </div>
+            <Input label="Fees" value={fees} setValue={setFees} type="number" />
           </div>
 
-          <div className="w-full lg:flex-1 flex flex-col gap-4">
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Speciality</p>
-              <select
-                onChange={(e) => setSpeciality(e.target.value)}
-                value={speciality}
-                className="border rounded px-3 py-2 border-gray-300 outline-0"
-              >
-                <option value="General physician">General physician</option>
-                <option value="Gynecologist">Gynecologist</option>
-                <option value="Dermatologist">Dermatologist</option>
-                <option value="Pediatricians">Pediatricians</option>
-                <option value="Neurologist">Neurologist</option>
-                <option value="Gastroenterologist">Gastroenterologist</option>
-              </select>
-            </div>
+          {/* RIGHT */}
+          <div className="space-y-4">
+            <Select
+              label="Speciality"
+              value={speciality}
+              setValue={setSpeciality}
+              options={[
+                "General physician",
+                "Gynecologist",
+                "Dermatologist",
+                "Pediatricians",
+                "Neurologist",
+                "Gastroenterologist",
+              ]}
+            />
 
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Education</p>
-              <input
-                onChange={(e) => setDegree(e.target.value)}
-                value={degree}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="text"
-                placeholder="Education"
-                required
-              />
-            </div>
+            <Input label="Education" value={degree} setValue={setDegree} />
 
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Address</p>
-              <input
-                onChange={(e) => setAddress1(e.target.value)}
-                value={address1}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff] mb-4"
-                type="text"
-                placeholder="Address 1"
-                required
-              />
-              <input
-                onChange={(e) => setAddress2(e.target.value)}
-                value={address2}
-                className="border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-                type="text"
-                placeholder="Address 2"
-                required
-              />
-            </div>
+            <Input
+              label="Address Line 1"
+              value={address1}
+              setValue={setAddress1}
+            />
+            <Input
+              label="Address Line 2"
+              value={address2}
+              setValue={setAddress2}
+            />
           </div>
         </div>
 
-        <div>
-          <p className="mt-4 mb-2">About Doctor</p>
+        {/* ABOUT */}
+        <div className="mt-6">
+          <label className="text-sm font-medium text-gray-600">
+            About Doctor
+          </label>
           <textarea
-            onChange={(e) => setAbout(e.target.value)}
             value={about}
-            className="w-full border rounded px-3 py-2 border-gray-300 outline-[#5f6fff]"
-            placeholder="write about doctor"
-            rows={5}
-            required
+            onChange={(e) => setAbout(e.target.value)}
+            className="w-full mt-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+            rows={4}
+            placeholder="Write about doctor..."
           />
         </div>
 
-        <button
-          type="submit"
-          className="bg-primary rounded-full text-white px-10 py-3 mt-4 cursor-pointer"
-        >
-          Add Doctor
-        </button>
+        {/* ACTION BUTTON */}
+        <div className="mt-6 flex justify-end">
+          <button className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white px-10 py-3 rounded-xl shadow-lg hover:scale-105 transition font-medium">
+            🚀 Add Doctor
+          </button>
+        </div>
       </div>
     </form>
   );
 };
 
 export default AddDoctor;
+
+/* REUSABLE COMPONENTS */
+
+const Input = ({ label, value, setValue, type = "text" }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-600">{label}</label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      className="w-full mt-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+    />
+  </div>
+);
+
+const Select = ({ label, value, setValue, options }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-600">{label}</label>
+    <select
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      className="w-full mt-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+    >
+      {options.map((opt, i) => (
+        <option key={i} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
+  </div>
+);

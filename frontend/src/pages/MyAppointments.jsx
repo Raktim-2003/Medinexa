@@ -2,132 +2,259 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext);
+
   const [appointments, setAppointments] = useState([]);
+  const [filter, setFilter] = useState("all");
+
   const months = [
     "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec",
   ];
 
+  /* ================= DATE FORMAT ================= */
   const slotDateFormat = (slotDate) => {
     const dateArray = slotDate.split("_");
-    return (
-      dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2]
-    );
+    return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
   };
 
+  /* ================= FETCH ================= */
   const getUserAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/user/appointments", {
-        headers: { token },
-      });
+      const { data } = await axios.get(
+        backendUrl + "/api/user/appointments",
+        { headers: { token } }
+      );
 
       if (data.success) {
         setAppointments(data.appointments.reverse());
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
   };
 
-  const cancelAppointment = async (appointmentId) => {
+  /* ================= CANCEL ================= */
+  const cancelAppointment = async (id) => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/user/cancel-appointment",
-        { appointmentId },
+        { appointmentId: id },
         { headers: { token } }
       );
 
       if (data.success) {
-        toast.success(data.message);
+        toast.success("Appointment Cancelled ❌");
         getUserAppointments();
         getDoctorsData();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
   };
 
   useEffect(() => {
-    if (token) {
-      getUserAppointments();
-    }
+    if (token) getUserAppointments();
   }, [token]);
+
+  /* ================= FILTER ================= */
+  const filteredAppointments = appointments.filter((item) => {
+    if (filter === "all") return true;
+    if (filter === "completed") return item.isCompleted;
+    if (filter === "cancelled") return item.cancelled;
+    if (filter === "upcoming") return !item.cancelled && !item.isCompleted;
+  });
+
+  /* ================= GRAPH DATA ================= */
+  const getStats = () => {
+    const fullMonths = [
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
+    ];
+
+    const map = {};
+    fullMonths.forEach((m) => (map[m] = 0));
+
+    appointments.forEach((a) => {
+      const mIndex = a.slotDate.split("_")[1];
+      const month = fullMonths[Number(mIndex) - 1];
+      map[month]++;
+    });
+
+    return fullMonths.map((m) => ({
+      month: m,
+      visits: map[m],
+    }));
+  };
+
   return (
-    <div>
-      <p className="pb-3 mt-12 font-medium text-zinc-700 border-b border-gray-300">
-        My appointments
-      </p>
-      <div>
-        {appointments.map((item, index) => (
-          <div
-            className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b border-gray-300"
-            key={index}
+    <div className="min-h-screen bg-gradient-to-br from-[#eef2ff] to-[#fdf4ff] p-6">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Appointments
+        </h1>
+
+        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs">
+          🔔 {appointments.length}
+        </span>
+      </div>
+
+      {/* ================= GRAPH ================= */}
+      <div className="bg-white p-5 rounded-2xl shadow-md mb-6">
+        <h3 className="text-sm font-semibold mb-3 text-gray-700">
+          📊 Monthly Visits
+        </h3>
+
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={getStats()}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+
+            <Bar
+              dataKey="visits"
+              fill="#6366f1"
+              radius={[8, 8, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* ================= FILTER ================= */}
+      <div className="flex gap-3 mb-6 flex-wrap">
+        {["all", "upcoming", "completed", "cancelled"].map((t) => (
+          <button
+            key={t}
+            onClick={() => setFilter(t)}
+            className={`px-4 py-2 rounded-full text-sm capitalize transition ${
+              filter === t
+                ? "bg-indigo-500 text-white shadow"
+                : "bg-white border text-gray-600"
+            }`}
           >
-            <div>
-              <img
-                className="w-32 bg-indigo-50"
-                src={item.docData.image}
-                alt=""
-              />
-            </div>
-            <div className="flex-1 text-sm text-zinc-600">
-              <p className="text-neutral-800 font-semibold">
+            {t}
+          </button>
+        ))}
+      </div>
+
+      {/* ================= LIST ================= */}
+      <div className="grid gap-6">
+
+        {filteredAppointments.length === 0 && (
+          <div className="text-center py-20 bg-white rounded-xl shadow">
+            <p className="text-gray-500 text-lg">
+              No appointments found 🩺
+            </p>
+          </div>
+        )}
+
+        {filteredAppointments.map((item) => (
+          <div
+            key={item._id}
+            className="bg-white p-5 rounded-2xl shadow flex flex-col md:flex-row gap-5 hover:shadow-lg transition"
+          >
+
+            {/* IMAGE */}
+            <img
+              src={item.docData.image}
+              className="w-24 h-24 rounded-xl object-cover"
+              alt=""
+            />
+
+            {/* INFO */}
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg text-gray-800">
                 {item.docData.name}
+              </h2>
+
+              <p className="text-indigo-500 text-sm">
+                {item.docData.speciality}
               </p>
-              <p>{item.docData.speciality}</p>
-              <p className="text-zinc-700 font-medium mt-1">Address:</p>
-              <p className="text-xs">{item.docData.address.line1}</p>
-              <p className="text-xs">{item.docData.address.line2}</p>
-              <p className="text-xs mt-1">
-                <span className="text-sm text-neutral-700 font-medium">
-                  Date & Time:
-                </span>{" "}
-                {slotDateFormat(item.slotDate)} | {item.slotTime}
+
+              <p className="text-sm mt-2 text-gray-600">
+                📍 {item.docData.address.line1},{" "}
+                {item.docData.address.line2}
               </p>
+
+              <p className="text-sm mt-2 text-gray-700">
+                📅 {slotDateFormat(item.slotDate)} | ⏰ {item.slotTime}
+              </p>
+
+              {/* STATUS */}
+              <div className="mt-3">
+                {!item.cancelled && !item.isCompleted && (
+                  <span className="px-3 py-1 text-xs bg-green-100 text-green-600 rounded-full">
+                    Upcoming
+                  </span>
+                )}
+
+                {item.cancelled && (
+                  <span className="px-3 py-1 text-xs bg-red-100 text-red-500 rounded-full">
+                    Cancelled
+                  </span>
+                )}
+
+                {item.isCompleted && (
+                  <span className="px-3 py-1 text-xs bg-blue-100 text-blue-500 rounded-full">
+                    Completed
+                  </span>
+                )}
+              </div>
+
+              {/* ⭐ RATING */}
+              {item.isCompleted && (
+                <div className="mt-3">
+                  <p className="text-xs mb-1">Rate Doctor</p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star} className="cursor-pointer text-lg">
+                        ⭐
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            <div></div>
-            <div className="flex flex-col gap-2 justify-end">
+
+            {/* ACTIONS */}
+            <div className="flex flex-col gap-2 justify-center">
+
               {!item.cancelled && !item.isCompleted && (
-                <button className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded cursor-pointer hover:bg-primary hover:text-white transition-all duration-300">
-                  Pay Online
+                <button className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:opacity-90">
+                  Pay
                 </button>
               )}
+
               {!item.cancelled && !item.isCompleted && (
                 <button
                   onClick={() => cancelAppointment(item._id)}
-                  className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded cursor-pointer hover:bg-red-600 hover:text-white transition-all duration-300"
+                  className="border border-red-400 text-red-500 px-4 py-2 rounded-lg text-sm hover:bg-red-500 hover:text-white"
                 >
-                  Cancel appointment
+                  Cancel
                 </button>
               )}
-              {item.cancelled && !item.isCompleted && (
-                <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500">
-                  Appointment cancelled
+
+              {!item.cancelled && !item.isCompleted && (
+                <button className="border px-4 py-2 rounded-lg text-sm hover:bg-gray-100">
+                  🔁 Reschedule
                 </button>
               )}
-              {item.isCompleted && (
-                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500">
-                  Completed
-                </button>
-              )}
+
             </div>
           </div>
         ))}

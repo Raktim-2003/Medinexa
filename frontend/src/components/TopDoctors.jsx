@@ -7,49 +7,104 @@ const TopDoctors = () => {
   const { doctors } = useContext(AppContext);
 
   return (
-    <div className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
-      <h1 className="text-3xl font-medium">Top Doctors to Book</h1>{" "}
-      <p className="sm:w-1/3 text-center text-sm">
-        Simply browse through our extensive list of trusted doctors.
-      </p>
-      <div className="w-full grid grid-cols-auto grid-cols-lg gap-4 pt-5 gap-y-6 px-3 sm:px-0 xl:grid-cols-5">
+    <div className="px-4 md:px-10 lg:px-20 my-20">
+
+      {/* HEADER */}
+      <div className="text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+          Top <span className="text-blue-600">Doctors</span> to Book
+        </h1>
+        <p className="text-gray-500 text-sm mt-3 max-w-xl mx-auto">
+          Browse through our trusted doctors and book appointments easily.
+        </p>
+      </div>
+
+      {/* GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+
         {doctors.slice(0, 10).map((item, index) => (
           <div
-            onClick={() => {
-              navigate(`/appointment/${item._id}`), scrollTo(0, 0);
-            }}
-            className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
             key={index}
+            onClick={() => {
+              navigate(`/appointment/${item._id}`);
+              scrollTo(0, 0);
+            }}
+            className="group bg-white/80 backdrop-blur-lg 
+            border border-gray-200 rounded-2xl overflow-hidden 
+            shadow-md hover:shadow-2xl hover:-translate-y-2 
+            transition-all duration-300 cursor-pointer flex flex-col"
           >
-            <img className="bg-blue-50" src={item.image} alt="" />
-            <div className="p-4">
+
+            {/* IMAGE */}
+            <div className="relative h-52 overflow-hidden">
+              <img
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                src={item.image}
+                alt={item.name}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+            </div>
+
+            {/* CONTENT */}
+            <div className="p-5 flex flex-col gap-2 flex-1">
+
+              {/* STATUS */}
               <div
-                className={`flex items-center gap-2 text-sm text-center ${
-                  item.available ? "text-green-500" : "text-gray-500"
+                className={`flex items-center gap-2 text-sm ${
+                  item.available ? "text-green-500" : "text-gray-400"
                 }`}
               >
-                <p
-                  className={`w-2 h-2 ${
-                    item.available ? "bg-green-500" : "bg-gray-500"
-                  }  rounded-full`}
-                ></p>
-                <p>{item.available ? "Available" : "Not available"}</p>
+                <span
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    item.available ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                ></span>
+                {item.available ? "Available" : "Not Available"}
               </div>
-              <p className="text-gray-900 text-lg font-medium">{item.name}</p>
-              <p className="text-gray-600 text-sm">{item.speciality}</p>
+
+              {/* NAME */}
+              <p className="text-lg font-semibold text-gray-800">
+                {item.name}
+              </p>
+
+              {/* SPECIALITY */}
+              <p className="text-sm text-gray-500">
+                {item.speciality}
+              </p>
+
+              {/* RATING */}
+              <div className="text-yellow-500 text-sm">
+                ⭐ ⭐ ⭐ ⭐ ⭐ <span className="text-gray-500">(4.5)</span>
+              </div>
+
+              {/* CTA */}
+              <button className="mt-auto py-2 rounded-lg text-sm font-medium 
+                bg-gradient-to-r from-blue-600 to-indigo-500 text-white 
+                opacity-0 group-hover:opacity-100 transition">
+                Book Appointment
+              </button>
+
             </div>
           </div>
         ))}
+
       </div>
-      <button
-        onClick={() => {
-          navigate("/doctors");
-          scrollTo(0, 0);
-        }}
-        className="bg-blue-50 text-gray-600 px-12 py-3 cursor-pointer rounded-full mt-10"
-      >
-        more
-      </button>
+
+      {/* BUTTON */}
+      <div className="text-center mt-12">
+        <button
+          onClick={() => {
+            navigate("/doctors");
+            scrollTo(0, 0);
+          }}
+          className="bg-gradient-to-r from-blue-600 to-indigo-500 
+          text-white px-10 py-3 rounded-full shadow-md 
+          hover:scale-105 transition"
+        >
+          View All Doctors
+        </button>
+      </div>
+
     </div>
   );
 };

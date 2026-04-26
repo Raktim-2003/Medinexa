@@ -1,5 +1,6 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
+import AIAssistant from "./components/AIAssistant";
 import Doctors from "./pages/Doctors";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -16,7 +17,7 @@ import Service from "./pages/Service";
 const App = () => {
   const location = useLocation();
 
-  // 🚫 Hide navbar + footer on login page
+  // 🔥 Hide layout on auth pages
   const hideLayout = location.pathname === "/login";
 
   return (
@@ -25,6 +26,7 @@ const App = () => {
 
       {!hideLayout && <Navbar />}
 
+      {/* 🚀 ROUTES */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/doctors" element={<Doctors />} />
@@ -40,6 +42,9 @@ const App = () => {
       </Routes>
 
       {!hideLayout && <Footer />}
+
+      {/* ✅ AI ASSISTANT (ONLY WHEN NEEDED) */}
+      {!hideLayout && <AIAssistant />}
     </div>
   );
 };

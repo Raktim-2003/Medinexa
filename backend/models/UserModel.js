@@ -13,6 +13,13 @@ const userScheme = new mongoose.Schema({
   gender: { type: String, default: "Not Selected" },
   dob: { type: String, default: "Not Selected" },
   phone: { type: String, default: "000000000" },
+  blood: { type: String, default: "" },
+  emergency: { type: String, default: "" },
+  height: { type: String, default: "" },
+  weight: { type: String, default: "" },
+  notes: { type: String, default: "" },
+  bio: { type: String, default: "" },
+  countryCode: { type: String, default: "+91" },
 });
 
 const userModel = mongoose.models.user || mongoose.model("user", userScheme);

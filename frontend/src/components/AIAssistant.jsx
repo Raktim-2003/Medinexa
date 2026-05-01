@@ -25,7 +25,7 @@ const AIAssistant = () => {
 
     if (text.includes("doctor")) {
       navigate("/doctors");
-      return "Opening doctors page 👨‍⚕️";
+      return "Opening doctors page 👨‍⚕️ ";
     }
 
     if (text.includes("appointment")) {

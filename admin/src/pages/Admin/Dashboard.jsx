@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import { assets } from "../../assets/assets_admin/assets";
 import { AppContext } from "../../context/AppContext";
 
 import {
@@ -23,7 +22,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   LineElement,
-  PointElement,
+  PointElement
 );
 
 const Dashboard = () => {
@@ -34,23 +33,22 @@ const Dashboard = () => {
     if (aToken) getDashData();
   }, [aToken]);
 
-  // ✅ FIXED WEEKLY DATA
+  if (!dashData) return null;
+
+  // ✅ WEEKLY ACTIVITY
   const getWeeklyData = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const data = [0, 0, 0, 0, 0, 0, 0];
 
-    dashData.latestAppointments.forEach((item) => {
+    dashData.latestAppointments?.forEach((item) => {
       if (!item.slotDate) return;
 
       const parts = item.slotDate.split("_");
       if (parts.length !== 3) return;
 
-      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      const date = new Date(formatted);
-
+      const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
       if (!isNaN(date)) {
-        const day = date.getDay();
-        data[day]++;
+        data[date.getDay()]++;
       }
     });
 
@@ -60,30 +58,32 @@ const Dashboard = () => {
         {
           label: "Appointments",
           data,
+          backgroundColor: "#6366f1",
           borderRadius: 8,
         },
       ],
     };
   };
 
-  // ✅ REVENUE DATA
+  // ✅ FIXED REVENUE (MAIN FIX)
   const getRevenueData = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     const data = [0, 0, 0, 0, 0, 0];
 
-    dashData.latestAppointments.forEach((item) => {
-      if (!item.slotDate || !item.isCompleted) return;
+    dashData.latestAppointments?.forEach((item) => {
+      if (!item.slotDate) return;
 
       const parts = item.slotDate.split("_");
       if (parts.length !== 3) return;
 
-      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      const date = new Date(formatted);
+      const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
 
       if (!isNaN(date)) {
         const month = date.getMonth();
+
         if (month < 6) {
-          data[month] += item.docData?.fees || 0;
+          const fee = Number(item.docData?.fees) || 0;
+          data[month] += fee;
         }
       }
     });
@@ -94,7 +94,10 @@ const Dashboard = () => {
         {
           label: "Revenue",
           data,
+          borderColor: "#10b981",
+          backgroundColor: "rgba(16,185,129,0.2)",
           tension: 0.4,
+          fill: true,
         },
       ],
     };
@@ -105,14 +108,13 @@ const Dashboard = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     const data = [0, 0, 0, 0, 0, 0];
 
-    dashData.latestAppointments.forEach((item) => {
+    dashData.latestAppointments?.forEach((item) => {
       if (!item.slotDate) return;
 
       const parts = item.slotDate.split("_");
       if (parts.length !== 3) return;
 
-      const formatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      const date = new Date(formatted);
+      const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
 
       if (!isNaN(date)) {
         const month = date.getMonth();
@@ -126,6 +128,7 @@ const Dashboard = () => {
         {
           label: "Appointments Trend",
           data,
+          borderColor: "#6366f1",
           tension: 0.4,
         },
       ],
@@ -133,96 +136,93 @@ const Dashboard = () => {
   };
 
   return (
-    dashData && (
-      <div className="w-full min-h-screen px-8 py-6 bg-gradient-to-br from-indigo-50 via-white to-blue-50">
-        {/* HEADER */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Dashboard Overview 🚀
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Welcome back! Here's what's happening today.
-          </p>
-        </div>
+    <div className="w-full min-h-screen px-8 py-6 bg-gradient-to-br from-indigo-50 via-white to-blue-50">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Dashboard Overview 🚀
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Welcome back! Here's what's happening today.
+        </p>
+      </div>
 
-        {/* STATS */}
-        <div className="grid sm:grid-cols-3 gap-5 mb-8">
-          <Card title="Doctors" value={dashData.doctors} color="bg-blue-500" />
-          <Card
-            title="Appointments"
-            value={dashData.appointments}
-            color="bg-purple-500"
-          />
-          <Card
-            title="Patients"
-            value={dashData.patients}
-            color="bg-green-500"
-          />
-        </div>
+      {/* STATS */}
+      <div className="grid sm:grid-cols-3 gap-5 mb-8">
+        <Card title="Doctors" value={dashData.doctors} color="bg-blue-500" />
+        <Card
+          title="Appointments"
+          value={dashData.appointments}
+          color="bg-purple-500"
+        />
+        <Card
+          title="Patients"
+          value={dashData.patients}
+          color="bg-green-500"
+        />
+      </div>
 
-        {/* CHARTS */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {/* WEEKLY */}
-          <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="mb-4 font-semibold">Weekly Activity 📊</h2>
-            <Bar data={getWeeklyData()} />
-          </div>
-
-          {/* REVENUE */}
-          <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="mb-4 font-semibold">
-              Revenue Analytics 💰 ({currency})
-            </h2>
-            <Line data={getRevenueData()} />
-          </div>
-        </div>
-
-        {/* MONTHLY */}
-        <div className="bg-white p-6 rounded-2xl shadow mb-8">
-          <h2 className="mb-4 font-semibold">Monthly Appointments Trend 📈</h2>
-          <Line data={getMonthlyAppointments()} />
-        </div>
-
-        {/* ACTIVITY */}
+      {/* CHARTS */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white p-6 rounded-2xl shadow">
-          <h2 className="mb-4 font-semibold">Recent Activity 🔔</h2>
+          <h2 className="mb-4 font-semibold">Weekly Activity 📊</h2>
+          <Bar data={getWeeklyData()} />
+        </div>
 
-          <div className="space-y-4">
-            {dashData.latestAppointments.map((item, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <img
-                  className="w-10 h-10 rounded-full object-cover"
-                  src={item.docData.image}
-                  alt=""
-                />
-
-                <div className="flex-1">
-                  <p className="font-medium">{item.docData.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {slotDateFormat(item.slotDate)} | {item.slotTime}
-                  </p>
-                </div>
-
-                {/* STATUS LETTER */}
-                {item.cancelled ? (
-                  <span className="w-7 h-7 flex items-center justify-center bg-red-100 text-red-600 rounded-full text-xs font-bold">
-                    R
-                  </span>
-                ) : item.isCompleted ? (
-                  <span className="w-7 h-7 flex items-center justify-center bg-green-100 text-green-600 rounded-full text-xs font-bold">
-                    A
-                  </span>
-                ) : (
-                  <span className="w-7 h-7 flex items-center justify-center bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold">
-                    P
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="bg-white p-6 rounded-2xl shadow">
+          <h2 className="mb-4 font-semibold">
+            Revenue Analytics 💰 ({currency})
+          </h2>
+          <Line data={getRevenueData()} />
         </div>
       </div>
-    )
+
+      {/* MONTHLY */}
+      <div className="bg-white p-6 rounded-2xl shadow mb-8">
+        <h2 className="mb-4 font-semibold">
+          Monthly Appointments Trend 📈
+        </h2>
+        <Line data={getMonthlyAppointments()} />
+      </div>
+
+      {/* ACTIVITY */}
+      <div className="bg-white p-6 rounded-2xl shadow">
+        <h2 className="mb-4 font-semibold">Recent Activity 🔔</h2>
+
+        <div className="space-y-4">
+          {dashData.latestAppointments.map((item, index) => (
+            <div key={index} className="flex items-center gap-4">
+              <img
+                className="w-10 h-10 rounded-full object-cover"
+                src={item.docData?.image}
+                alt=""
+              />
+
+              <div className="flex-1">
+                <p className="font-medium">{item.docData?.name}</p>
+                <p className="text-xs text-gray-500">
+                  {slotDateFormat(item.slotDate)} | {item.slotTime}
+                </p>
+              </div>
+
+              {item.cancelled ? (
+                <span className="w-7 h-7 flex items-center justify-center bg-red-100 text-red-600 rounded-full text-xs font-bold">
+                  R
+                </span>
+              ) : item.isCompleted ? (
+                <span className="w-7 h-7 flex items-center justify-center bg-green-100 text-green-600 rounded-full text-xs font-bold">
+                  A
+                </span>
+              ) : (
+                <span className="w-7 h-7 flex items-center justify-center bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold">
+                  P
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
